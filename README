@@ -1,4 +1,8 @@
 To build this you will need libzstr [1], a C library for safe, efficient,
 8-bit clean strings.
 
- 1 - http://sourceforge.net/projects/libzstr
+Please see the DESIGN file for a justification of the specific base-32 encoding 
+and why it differs from previous encodings such as [2].
+
+[1] http://sourceforge.net/projects/libzstr
+[2] http://www.ietf.org/internet-drafts/draft-josefsson-base-encoding-04.txt

@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.10 2002/11/01 13:26:46 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.11 2002/11/01 14:24:28 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
@@ -135,8 +135,12 @@ NUM_OS_TO_NUM_QS=(0, 2, 4, 5, 7,)
 # to know the actual length of the encoded data).
 
 NUM_QS_TO_NUM_OS=(0, 1, 1, 2, 2, 3, 3, 4)
-NUM_QS_LEGIT=(true, false, true, false, true, true, false, true,)
+NUM_QS_LEGIT=(1, 0, 1, 0, 1, 1, 0, 1,)
 NUM_QS_TO_NUM_BITS=tuple(map(lambda x: x*8, NUM_QS_TO_NUM_OS))
+
+def num_octets_that_encode_to_this_many_quintets(numqs):
+    # Here is a computation that conveniently expresses this:
+    return (numqs*5+3)/8
 
 def a2b(cs):
     """
@@ -148,7 +152,7 @@ def a2b(cs):
     """
     assert could_be_base32_encoded(cs), "precondition:" + "cs must be possibly base32 encoded data." + " -- " + "cs: %s" % cs
 
-    return a2b_l(cs, NUM_QS_TO_NUM_BITS(len(cs)))
+    return a2b_l(cs, num_octets_that_encode_to_this_many_quintets(len(cs))*8)
 
 def a2b_l(cs, lengthinbits):
     """
