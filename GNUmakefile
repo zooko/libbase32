@@ -5,12 +5,12 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: GNUmakefile,v 1.4 2003/06/27 02:16:35 zooko Exp $'
+__cvsid = '$Id: GNUmakefile,v 1.5 2003/12/13 18:04:08 zooko Exp $'
 
 NAME=base32
 
-INCDIRS=-I../../libzutil/libzutil -I../../libzstr/libzstr
-LIBDIRS=-L../../libzutil/libzutil -L../../libzstr/libzstr
+INCDIRS=-I../libzutil -I../libzstr
+LIBDIRS=-L../libzutil -L../libzstr
 LIBS=-lzstr -lzutil -lm
 
 LIBPREFIX=lib

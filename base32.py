@@ -4,17 +4,15 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-# CVS:
-__cvsid = '$Id: base32.py,v 1.18 2003/09/12 19:55:54 myers_carpenter Exp $'
+__version__ = "$Revision: 1.19 $"
+# $Source: /home/zooko/playground/libbase32/rescue-party/gw/../libbase32/libbase32/base32.py,v $
 
-# Python standard library modules
-import string, types, operator
+import string
 
-# pyutil modules
-from pyutil import strutil
+from pyutil.assertutil import _assert, precondition, postcondition
 
-base32_version=(0,9,9,)
-base32_verstr=string.join(map(str, base32_version), ".")
+base32_version=(0,9,10,)
+base32_verstr='.'.join(map(str, base32_version))
 
 # Try importing faster compiled versions of these functions.
 c_b2a = None
@@ -24,21 +22,33 @@ c_could_be_base32_encoded = None
 c_trimnpad = None
 try:
     from c_base32 import c_b2a
+except:
+    pass
+try:
     from c_base32 import c_a2b
+except:
+    pass
+try:
     from c_base32 import c_could_be_base32_encoded_octets
+except:
+    pass
+try:
     from c_base32 import c_could_be_base32_encoded
+except:
+    pass
+try:
     from c_base32 import c_trimnpad
 except:
     pass
 
-# Now at the end of this file, we'll override the Python functions with the compiled functions if they are not `None'.
+# Now at the end of this file, we'll override the Python functions with the compiled functions if they are not None.
 
 mnet32_alphabet = "ybndrfg8ejkmcpqxot1uwisza345h769" # Zooko's choice, rationale in "DESIGN" doc
 # mnet32_alphabet = "abcdefghijkmnopqrstuwxyz13456789" # same, unpermuted
 rfc3548_alphabet = "abcdefghijklmnopqrstuvwxyz234567" # RFC3548 standard used by Gnutella, Content-Addressable Web, THEX, Bitzi...
 chars = mnet32_alphabet
 
-vals = string.join(map(chr, range(32)), '')
+vals = ''.join(map(chr, range(32)))
 c2vtranstable = string.maketrans(chars, vals)
 v2ctranstable = string.maketrans(vals, chars)
 identitytranstable = string.maketrans(chars, chars)
@@ -59,14 +69,11 @@ def _get_trailing_chars_without_lsbs(N, d):
     return s
 
 def get_trailing_chars_without_lsbs(N):
-    """
-    @precondition N is required to be >= 0 and < 5.: (N >= 0) and (N < 5): "N: %s" % N
-    """
-    assert (N >= 0) and (N < 5), "precondition: " + " N is required to be > 0 and < len(chars)." + " -- " + "N: %s" % N
+    precondition((N >= 0) and (N < 5), "N is required to be > 0 and < len(chars).", N=N)
     if N == 0:
         return chars
     d = {}
-    return string.join(_get_trailing_chars_without_lsbs(N, d=d), '')
+    return ''.join(_get_trailing_chars_without_lsbs(N, d=d))
 
 def print_trailing_chars_without_lsbs(N):
     print get_trailing_chars_without_lsbs(N)
@@ -78,8 +85,8 @@ def print_trailing_chars():
         print_trailing_chars_without_lsbs(N)
         N = N - 1
 
-upcasetranstable = string.maketrans(strutil.ascii_lowercase, strutil.ascii_uppercase)
-digitchars = string.translate(chars, identitytranstable, strutil.ascii_lowercase)
+upcasetranstable = string.maketrans(string.ascii_lowercase, string.ascii_uppercase)
+digitchars = string.translate(chars, identitytranstable, string.ascii_lowercase)
 def add_upcase(s, upcasetranstable=upcasetranstable, digitchars=digitchars):
     return s + string.translate(s, upcasetranstable, digitchars)
 
@@ -87,42 +94,38 @@ def b2a(os):
     """
     @param os the data to be encoded (a string)
 
-    @return the contents of `os' in base-32 encoded form
+    @return the contents of os in base-32 encoded form
     """
     return b2a_l(os, len(os)*8)
 
 def b2a_l(os, lengthinbits):
     """
     @param os the data to be encoded (a string)
-    @param lengthinbits the number of bits of data in `os' to be encoded
+    @param lengthinbits the number of bits of data in os to be encoded
 
     b2a_l() will generate a base-32 encoded string big enough to encode lengthinbits bits.  So for
     example if os is 2 bytes long and lengthinbits is 15, then b2a_l() will generate a 3-character-
     long base-32 encoded string (since 3 quintets is sufficient to encode 15 bits).  If os is
     2 bytes long and lengthinbits is 16 (or None), then b2a_l() will generate a 4-character string.
-    Note that `b2a_l()' does not mask off unused least-significant bits, so for example if os is
+    Note that b2a_l() does not mask off unused least-significant bits, so for example if os is
     2 bytes long and lengthinbits is 15, then you must ensure that the unused least-significant bit
     of os is a zero bit or you will get the wrong result.  This precondition is tested by assertions
     if assertions are enabled.
 
-    Warning: if you generate a base-32 encoded string with `b2a_l()', and then someone else tries to
-    decode it by calling `a2b()' instead of  `a2b_l()', then they will (probably) get a different
-    string than the one you encoded!  So only use `b2a_l()' when you are sure that the encoding and
-    decoding sides know exactly which `lengthinbits' to use.  If you do not have a way for the
-    encoder and the decoder to agree upon the lengthinbits, then it is best to use `b2a()' and
-    `a2b()'.  The only drawback to using `b2a()' over `b2a_l()' is that when you have a number of
-    bits to encode that is not a multiple of 8, `b2a()' can sometimes generate a base-32 encoded
+    Warning: if you generate a base-32 encoded string with b2a_l(), and then someone else tries to
+    decode it by calling a2b() instead of  a2b_l(), then they will (probably) get a different
+    string than the one you encoded!  So only use b2a_l() when you are sure that the encoding and
+    decoding sides know exactly which lengthinbits to use.  If you do not have a way for the
+    encoder and the decoder to agree upon the lengthinbits, then it is best to use b2a() and
+    a2b().  The only drawback to using b2a() over b2a_l() is that when you have a number of
+    bits to encode that is not a multiple of 8, b2a() can sometimes generate a base-32 encoded
     string that is one or two characters longer than necessary.
 
-    @return the contents of `os' in base-32 encoded form
-
-    @precondition `lengthinbits' must be an integer.: type(lengthinbits) in (types.IntType, types.LongType,): "%s :: %s" % (lengthinbits, type(lengthinbits),)
-    @precondition `lengthinbits' must specify a number of bits storable in exactly len(os) octets.: (lengthinbits+7)/8 == len(os): "lengthinbits: %s, len(os): %s" % (lengthinbits, len(os),)
-    @precondition Any unused least-significant bits in `os' must be zero bits.: (lengthinbits % 8==0) or ((ord(os[-1]) % (2**(8-(lengthinbits%8))))==0): "lengthinbits%%8: %s, ord(os[-1]): 0x%02x" % (lengthinbits%8, ord(os[-1]),)
+    @return the contents of os in base-32 encoded form
     """
-    assert type(lengthinbits) in (types.IntType, types.LongType,), "precondition: `lengthinbits' must be an integer." + " -- " + "%s :: %s" % (lengthinbits, type(lengthinbits),)
-    assert (lengthinbits+7)/8 == len(os), "precondition: `lengthinbits' must specify a number of bits storable in exactly len(os) octets." + " -- " + "lengthinbits: %s, len(os): %s" % (lengthinbits, len(os),)
-    assert (lengthinbits % 8==0) or ((ord(os[-1]) % (2**(8-(lengthinbits%8))))==0), "precondition: Any unused least-significant bits in `os' must be zero bits." + " -- " + "lengthinbits%%8: %s, ord(os[-1]): 0x%02x" % (lengthinbits%8, ord(os[-1]),)
+    precondition(isinstance(lengthinbits, (int, long,)), "lengthinbits is required to be an integer.", lengthinbits=lengthinbits)
+    precondition((lengthinbits+7)/8 == len(os), "lengthinbits is required to specify a number of bits storable in exactly len(os) octets.", lengthinbits=lengthinbits, lenos=len(os))
+    precondition((lengthinbits % 8==0) or ((ord(os[-1]) % (2**(8-(lengthinbits%8))))==0), "Any unused least-significant bits in os are required to be zero bits.", ord(os[-1]), lengthinbits=lengthinbits)
 
     os = map(ord, os)
 
@@ -191,39 +194,32 @@ def num_octets_that_encode_to_this_many_quintets(numqs):
 def a2b(cs):
     """
     @param cs the base-32 encoded data (a string)
-
-    @precondition cs must be possibly base32 encoded data.: could_be_base32_encoded(cs): "cs: %s" % cs
-
-    @return the binary data that was encoded into `cs' (a string)
     """
-    assert could_be_base32_encoded(cs), "precondition:" + "cs must be possibly base32 encoded data." + " -- " + "cs: %s" % cs
+    precondition(could_be_base32_encoded(cs), "cs is required to be possibly base32 encoded data.", cs=cs)
 
     return a2b_l(cs, num_octets_that_encode_to_this_many_quintets(len(cs))*8)
 
 def a2b_l(cs, lengthinbits):
     """
-    @param lengthinbits the number of bits of data in encoded into `cs'
+    @param lengthinbits the number of bits of data in encoded into cs
 
     a2b_l() will return a result big enough to hold lengthinbits bits.  So for example if cs is
     4 characters long (encoding at least 15 and up to 20 bits) and lengthinbits is 16, then a2b_l()
     will return a string of length 2 (since 2 bytes is sufficient to store 16 bits).  If cs is 4
     characters long and lengthinbits is 20, then a2b_l() will return a string of length 3 (since
-    3 bytes is sufficient to store 20 bits).  Note that `b2a_l()' does not mask off unused least-
+    3 bytes is sufficient to store 20 bits).  Note that b2a_l() does not mask off unused least-
     significant bits, so for example if cs is 4 characters long and lengthinbits is 17, then you
     must ensure that all three of the unused least-significant bits of cs are zero bits or you will
     get the wrong result.  This precondition is tested by assertions if assertions are enabled.
     (Generally you just require the encoder to ensure this consistency property between the least
-    significant zero bits and value of `lengthinbits', and reject strings that have a length-in-bits
+    significant zero bits and value of lengthinbits, and reject strings that have a length-in-bits
     which isn't a multiple of 8 and yet don't have trailing zero bits, as improperly encoded.)
 
-    Please see the warning in the docstring of `b2a_l()' regarding the use of `b2a()' versus
-    `b2a_l()'.
+    Please see the warning in the docstring of b2a_l() regarding the use of b2a() versus b2a_l().
 
-    @return the data encoded in `cs'
-
-    @precondition cs must be possibly base32 encoded data.: could_be_base32_encoded_l(cs, lengthinbits): "cs: %s, lengthinbits: %s" % (cs, lengthinbits,)
+    @return the data encoded in cs
     """
-    assert could_be_base32_encoded_l(cs, lengthinbits), "precondition: cs must be possibly base32 encoded data." + " -- " + "cs: %s, lengthinbits: %s" % (cs, lengthinbits,)
+    precondition(could_be_base32_encoded_l(cs, lengthinbits), "cs is required to be possibly base32 encoded data.", cs=cs, lengthinbits=lengthinbits)
 
     qs = map(ord, string.translate(cs, c2vtranstable))
 
@@ -255,13 +251,13 @@ def a2b_l(cs, lengthinbits):
         num = num * 256
         pos = pos * 256
     assert len(octets) == numoctets, "len(octets): %s, numoctets: %s, octets: %s" % (len(octets), numoctets, octets,)
-    res = string.join(map(chr, octets), '')
-    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
+    res = ''.join(map(chr, octets))
+    precondition(b2a_l(res, lengthinbits) == cs, "cs is required to be the canonical base-32 encoding of some data.", b2a(res), res=res, cs=cs)
     return res
 
 # A fast way to determine whether a given string *could* be base-32 encoded data, assuming that the
 # original data had 8K bits for a positive integer K.
-# The boolean value of `s8[len(s)%8][ord(s[-1])]', where `s' is the possibly base-32 encoded string
+# The boolean value of s8[len(s)%8][ord(s[-1])], where s is the possibly base-32 encoded string
 # tells whether the final character is reasonable.
 def add_check_array(cs, sfmap):
     checka=[0] * 256
@@ -293,7 +289,7 @@ s8a = init_s8a()
 
 # A somewhat fast way to determine whether a given string *could* be base-32 encoded data, given a
 # lengthinbits.
-# The boolean value of `s5[lengthinbits%5][ord(s[-1])]', where `s' is the possibly base-32 encoded
+# The boolean value of s5[lengthinbits%5][ord(s[-1])], where s is the possibly base-32 encoded
 # string tells whether the final character is reasonable.
 def init_s5():
     s5 = []
@@ -317,7 +313,7 @@ def could_be_base32_encoded(s, s8=s8, tr=string.translate, identitytranstable=id
 def could_be_base32_encoded_l(s, lengthinbits, s5=s5, tr=string.translate, identitytranstable=identitytranstable, chars=chars):
     return (((lengthinbits+4)/5) == len(s)) and s5[lengthinbits%5][ord(s[-1])] and not string.translate(s, identitytranstable, chars)
 
-# the `_long' functions are 2/3 as fast as the normal ones.  The `_long' variants are included for testing, documentation, and benchmarking purposes.
+# the _long functions are 2/3 as fast as the normal ones.  The _long variants are included for testing, documentation, and benchmarking purposes.
 def b2a_long(os):
     return b2a_l_long(os, len(os)*8)
 
@@ -363,10 +359,7 @@ def a2b_long(cs):
     return a2b_l_long(cs, ((len(cs)*5+3)/8)*8)
 
 def a2b_l_long(cs, lengthinbits):
-    """
-    @precondition `cs' must be possibly base32 encoded data.: could_be_base32_encoded_l(cs, lengthinbits): "lengthinbits: %s, cs: %s" % (lengthinbits, `cs`,)
-    """
-    assert could_be_base32_encoded_l(cs, lengthinbits), "precondition: `cs' must be possibly base32 encoded data." + " -- " + "lengthinbits: %s, cs: %s" % (lengthinbits, `cs`,)
+    precondition(could_be_base32_encoded_l(cs, lengthinbits), "cs is required to be possibly base32 encoded data.", lengthinbits=lengthinbits, cs=cs)
 
     qs = map(ord, string.translate(cs, c2vtranstable))
 
@@ -401,13 +394,13 @@ def a2b_l_long(cs, lengthinbits):
             num = num - (octet * CUTOFF)
             num = num * 256
     octets = octets[:numoctets]
-    res = string.join(map(chr, octets), '')
-    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
+    res = ''.join(map(chr, octets))
+    precondition(b2a_l(res, lengthinbits) == cs, "cs is required to be the canonical base-32 encoding of some data.", b2a(res), res=res, cs=cs)
     return res
 
 def trimnpad(os, lengthinbits):
     """
-    @return a string derived from `os' but containing exactly `lengthinbits' data bits -- if lengthinbits is less than the number of bits contained in `os' then the trailing unused bits will be zeroed out, and if `lengthinbits' is greater than the number of bits contained in `os' then extra zero bytes will be appended
+    @return a string derived from os but containing exactly lengthinbits data bits -- if lengthinbits is less than the number of bits contained in os then the trailing unused bits will be zeroed out, and if lengthinbits is greater than the number of bits contained in os then extra zero bytes will be appended
     """
     os = map(ord, os)
     mod8 = lengthinbits % 8
@@ -423,10 +416,10 @@ def trimnpad(os, lengthinbits):
     else:
         # append zero octets for padding
         os.extend([0]*(numos-len(os)))
-    return string.join(map(chr, os), '')
+    return ''.join(map(chr, os))
 
 
-# Now we'll override the Python functions with the compiled functions if they are not `None'.
+# Now we'll override the Python functions with the compiled functions if they are not None.
 if c_b2a is not None:
     b2a = c_b2a
 if c_a2b is not None:
@@ -438,7 +431,7 @@ if c_could_be_base32_encoded is not None:
 if c_trimnpad is not None:
     trimnpad = c_trimnpad
 
-# For unit tests, see the file `test/test_base32.py'.
+# For unit tests, see the file test/test_base32.py.
 
 def _help_bench_e(N):
     return b2a(_help_test_rands(N))
@@ -459,12 +452,6 @@ def benchem():
     benchfunc.bench(_help_bench_e_l, TOPXP=13)
     print "ed_l: "
     benchfunc.bench(_help_bench_ed_l, TOPXP=13)
-
-
-
-
-
-
 
 # Copyright (c) 2002 Bryce "Zooko" Wilcox-O'Hearn
 # Permission is hereby granted, free of charge, to any person obtaining a copy

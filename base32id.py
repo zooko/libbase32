@@ -4,11 +4,8 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 # $Source: /home/zooko/playground/libbase32/rescue-party/gw/../libbase32/libbase32/base32id.py,v $
-
-True = 1 == 1
-False = not True
 
 import string
 
@@ -19,9 +16,11 @@ import base32
 printableascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_=+!@#$%^&*()`~[]\{}|;':\",./<>? \t" # I just typed this in by looking at my keyboard.  It probably doesn't matter much if I missed some, because I only use it to guess whether a 20-byte string should be represented as a string or as an ID.  If all of the characters in the string are found `printableascii', then we guess that it is a string, not an id.
 nulltrans = string.maketrans('', '')
 
+def abbrev_bare(id, b2a_l=base32.b2a_l, trimnpad=base32.trimnpad):
+    return b2a_l(trimnpad(id[:4], 25), 25)
 
-def abbrev(id, b2a_l=base32.b2a_l, trimnpad=base32.trimnpad):
-    return '<' + b2a_l(trimnpad(id[:4], 25), 25) + '>'
+def abbrev(id):
+    return '<' + abbrev_bare(id) + '>'
 
 def to_base32(id, b2a_l=base32.b2a_l):
     return b2a_l(id, 160)

@@ -45,7 +45,7 @@ int test_rands()
 
 int test_b2alen_doesnt_overflow()
 {
-	if (b2alen(MAX_SIZE_T) != (unsigned long)ceil((double)MAX_SIZE_T/(double)5))
+	if (b2alen(SIZE_T_MAX) != (unsigned long)ceil((double)SIZE_T_MAX/(double)5))
 		return -1;
 	else
 		return 0;

@@ -4,39 +4,31 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__author__ = 'Zooko'
-__revision__ = '$Id: test_base32.py,v 1.3 2003/04/05 20:02:18 tschechow Exp $'
+__version__ = "$Revision: 1.4 $"
+# $Source: /home/zooko/playground/libbase32/rescue-party/gw/../libbase32/libbase32/test/test_base32.py,v $
 
-# Python Standard Library modules
-import random, string, unittest
+import random, unittest
 
-# base32 modules
-from base32.base32 import *
+# http://sf.net/projects/pyutil
+from pyutil import randutil
 
-def _help_test_rands(n):
-    return string.join(map(chr, map(random.randrange, [0]*n, [256]*n)), '')
+from base32 import *
 
 class base32TestCase(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
     def test_ende(self):
-        bs = _help_test_rands(2**3)
+        bs = randutil.insecurerandstr(2**3)
         as=b2a(bs)
         bs2=a2b(as)
         assert bs2 == bs, "bs2: %s, bs: %s" % (`bs2`, `bs`,)
 
     def test_ende_long(self):
-        bs = _help_test_rands(2**3)
+        bs = randutil.insecurerandstr(2**3)
         as=b2a_long(bs)
         bs2=a2b_long(as)
         assert bs2 == bs, "bs2: %s, bs: %s" % (`bs2`, `bs`,)
 
     def test_both(self):
-        bs = _help_test_rands(2**3)
+        bs = randutil.insecurerandstr(2**3)
         as=b2a(bs)
         asl=b2a_long(bs)
         assert as == asl, "as: %s, asl: %s" % (`as`, `asl`,)
@@ -47,7 +39,7 @@ class base32TestCase(unittest.TestCase):
         assert bs2 == bs
 
     def test_big(self):
-        bs = _help_test_rands(2**9)
+        bs = randutil.insecurerandstr(2**9)
         as=b2a(bs)
         asl=b2a_long(bs)
         assert as == asl, "as: %s, asl: %s" % (`as`, `asl`,)
@@ -63,7 +55,7 @@ class base32TestCase(unittest.TestCase):
         """
         for j in range(2**6):
             lib = random.randrange(1, 2**8)
-            bs = _help_test_rands(random.randrange(1, 2**5))
+            bs = randutil.insecurerandstr(random.randrange(1, 2**5))
             as = b2a_l(bs, lib)
             assert len(as) == (lib+4)/5 # the size of the base-32 encoding must be just right
             asl = b2a_l_long(bs, lib)
@@ -79,7 +71,7 @@ class base32TestCase(unittest.TestCase):
     def test_odd_sizes(self):
         for j in range(2**6):
             lib = random.randrange(1, 2**8)
-            bs = _help_test_rands((lib+7)/8)
+            bs = randutil.insecurerandstr((lib+7)/8)
             # zero-out unused least-sig bits
             if lib%8:
                 b=ord(bs[-1])
@@ -104,14 +96,14 @@ class base32TestCase(unittest.TestCase):
     def test_could_be(self):
         # base-32 encoded strings could be
         for j in range(2**9):
-            rands = _help_test_rands(random.randrange(1, 2**7))
+            rands = randutil.insecurerandstr(random.randrange(1, 2**7))
             randsenc = b2a(rands)
             assert could_be_base32_encoded(randsenc), "rands: %s, randsenc: %s, a2b(randsenc): %s" % (`rands`, `randsenc`, `a2b(randsenc)`,)
 
         # base-32 encoded strings with unusual bit lengths could be, too
         for j in range(2**9):
             bitl = random.randrange(1, 2**7)
-            bs = _help_test_rands((bitl+7)/8)
+            bs = randutil.insecurerandstr((bitl+7)/8)
             # zero-out unused least-sig bits
             if bitl%8:
                 b=ord(bs[-1])
@@ -121,7 +113,7 @@ class base32TestCase(unittest.TestCase):
             assert could_be_base32_encoded_l(b2a_l(bs, bitl), bitl)
 
         # anything with a bogus character couldn't be
-        s = b2a(_help_test_rands(random.randrange(3, 2**7)))
+        s = b2a(randutil.insecurerandstr(random.randrange(3, 2**7)))
         assert not could_be_base32_encoded('\x00' + s)
         assert not could_be_base32_encoded(s + '\x00')
         assert not could_be_base32_encoded(s[:1] + '\x00' + s[1:])
@@ -132,13 +124,13 @@ class base32TestCase(unittest.TestCase):
         assert not could_be_base32_encoded_l('yyz', 16)
 
 def _help_bench_e(N):
-    return b2a(_help_test_rands(N))
+    return b2a(randutil.insecurerandstr(N))
 def _help_bench_ed(N):
-    return a2b(b2a(_help_test_rands(N)))
+    return a2b(b2a(randutil.insecurerandstr(N)))
 def _help_bench_e_l(N):
-    return b2a_long(_help_test_rands(N))
+    return b2a_long(randutil.insecurerandstr(N))
 def _help_bench_ed_l(N):
-    return a2b_long(b2a_long(_help_test_rands(N)))
+    return a2b_long(b2a_long(randutil.insecurerandstr(N)))
 
 def benchem():
     import benchfunc # from pyutil
