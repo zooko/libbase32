@@ -5,12 +5,12 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.6 2002/05/10 01:43:44 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.7 2002/05/10 22:11:25 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
 
-base32_version=(0,9,3,)
+base32_version=(0,9,4,)
 base32_verstr=string.join(map(str, base32_version), ".")
 
 # Try importing faster compiled versions of these functions.
@@ -359,15 +359,19 @@ def trimnpad(os, lengthinbits):
     @return a string derived from `os' but containing exactly `lengthinbits' data bits -- if lengthinbits is less than the number of bits contained in `os' then the trailing unused bits will be zeroed out, and if `lengthinbits' is greater than the number of bits contained in `os' then extra zero bytes will be appended
     """
     os = map(ord, os)
-    numos = (lengthinbits+7)/8
-    # strip trailing octets that won't be used
-    del os[numos:]
-    # zero out any unused bits in the final octet
-    if lengthinbits % 8 != 0:
-        os[-1] >>= (8-(lengthinbits%8))
-        os[-1] <<= (8-(lengthinbits%8))
-    # append zero octets for padding if needed
-    os.extend([0]*(numos-len(os)))
+    mod8 = lengthinbits % 8
+    div8 = lengthinbits / 8
+    numos = div8 + (mod8 != 0)
+    if len(os) >= numos:
+        # strip trailing octets that won't be used
+        del os[numos:]
+        # zero out any unused bits in the final octet
+        if mod8 != 0:
+            os[-1] >>= (8-(lengthinbits%8))
+            os[-1] <<= (8-(lengthinbits%8))
+    else:
+        # append zero octets for padding
+        os.extend([0]*(numos-len(os)))
     return string.join(map(chr, os), '')
 
 
