@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: __init__.py,v 1.1 2002/10/27 21:26:29 myers_carpenter Exp $'
+__cvsid = '$Id: __init__.py,v 1.2 2003/01/18 17:38:28 myers_carpenter Exp $'
 
 # Python standard library modules
 import string, types, operator
@@ -30,11 +30,54 @@ except:
 
 # Now at the end of this file, we'll override the Python functions with the compiled functions if they are not `None'.
 
-chars = "ybcdrfghxjkmnpqeotavwisz13458769"
+chars = "ybndrfg8ejkmcpqxot1uwisza345h769" # Zooko's choice, rationale in "DESIGN" doc
+# chars = "abcdefghijkmnopqrstuwxyz13456789" # same, unpermuted
+# chars = "abcdefghijklmnopqrstuvwxyz234567" # standard used by Gnutella, Content-Addressable Web, THEX, Bitzi...
+
 vals = string.join(map(chr, range(32)), '')
 c2vtranstable = string.maketrans(chars, vals)
 v2ctranstable = string.maketrans(vals, chars)
 identitytranstable = string.maketrans(chars, chars)
+
+def _get_trailing_chars_without_lsbs(N, d):
+    """
+    @return: a list of chars that can legitimately appear in the last place when the least significant N bits are ignored.
+    """
+    s = []
+    if N < 4:
+        s.extend(_get_trailing_chars_without_lsbs(N+1, d=d))
+    i = 0
+    while i < len(chars):
+        if not d.has_key(i):
+            d[i] = None
+            s.append(chars[i])
+        i = i + 2**N
+    return s
+
+def get_trailing_chars_without_lsbs(N):
+    """
+    @precondition N is required to be >= 0 and < 5.: (N >= 0) and (N < 5): "N: %s" % N
+    """
+    assert (N >= 0) and (N < 5), "precondition: " + " N is required to be > 0 and < len(chars)." + " -- " + "N: %s" % N
+    if N == 0:
+        return chars
+    d = {}
+    return string.join(_get_trailing_chars_without_lsbs(N, d=d), '')
+
+def print_trailing_chars_without_lsbs(N):
+    print get_trailing_chars_without_lsbs(N)
+
+def print_trailing_chars():
+    N = 4
+    while N >= 0:
+        print "%2d" % N + ": ",
+        print_trailing_chars_without_lsbs(N)
+        N = N - 1
+
+upcasetranstable = string.maketrans(string.ascii_lowercase, string.ascii_uppercase)
+digitchars = string.translate(chars, identitytranstable, string.ascii_lowercase)
+def add_upcase(s, upcasetranstable=upcasetranstable, digitchars=digitchars):
+    return s + string.translate(s, upcasetranstable, digitchars)
 
 def b2a(os):
     """
@@ -121,13 +164,37 @@ def b2a_l(os, lengthinbits):
     assert could_be_base32_encoded_l(res, lengthinbits), "lengthinbits: %s, res: %s" % (lengthinbits, res,)
     return res
 
+# b2a() uses the minimal number of quintets sufficient to encode the binary
+# input.  It just so happens that the relation is like this (everything is
+# modulo 40 bits).
+# num_qs = NUM_OS_TO_NUM_QS[num_os]
+NUM_OS_TO_NUM_QS=(0, 2, 4, 5, 7,)
+
+# num_os = NUM_QS_TO_NUM_OS[num_qs], but if not NUM_QS_LEGIT[num_qs] then
+# there is *no* number of octets which would have resulted in this number of
+# quintets, so either the encoded string has been mangled (truncated) or else
+# you were supposed to decode it with a2b_l() (which means you were supposed
+# to know the actual length of the encoded data).
+
+NUM_QS_TO_NUM_OS=(0, 1, 1, 2, 2, 3, 3, 4)
+NUM_QS_LEGIT=(1, 0, 1, 0, 1, 1, 0, 1,)
+NUM_QS_TO_NUM_BITS=tuple(map(lambda x: x*8, NUM_QS_TO_NUM_OS))
+
+def num_octets_that_encode_to_this_many_quintets(numqs):
+    # Here is a computation that conveniently expresses this:
+    return (numqs*5+3)/8
+
 def a2b(cs):
     """
     @param cs the base-32 encoded data (a string)
 
+    @precondition cs must be possibly base32 encoded data.: could_be_base32_encoded(cs): "cs: %s" % cs
+
     @return the binary data that was encoded into `cs' (a string)
     """
-    return a2b_l(cs, ((len(cs)*5+3)/8)*8)
+    assert could_be_base32_encoded(cs), "precondition:" + "cs must be possibly base32 encoded data." + " -- " + "cs: %s" % cs
+
+    return a2b_l(cs, num_octets_that_encode_to_this_many_quintets(len(cs))*8)
 
 def a2b_l(cs, lengthinbits):
     """
@@ -185,7 +252,7 @@ def a2b_l(cs, lengthinbits):
         pos = pos * 256
     assert len(octets) == numoctets, "len(octets): %s, numoctets: %s, octets: %s" % (len(octets), numoctets, octets,)
     res = string.join(map(chr, octets), '')
-    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical pyutil base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
+    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
     return res
 
 # A fast way to determine whether a given string *could* be base-32 encoded data, assuming that the
@@ -198,36 +265,25 @@ def add_check_array(cs, sfmap):
         checka[ord(c)] = 1
     sfmap.append(tuple(checka))
 
-# XXX It would be nice if the reason that this test works was documented here in comments, and if the contents were generated algorithmically at init time instead of hardcoded here.  I just found a bug in which one of the following characters had been mistyped.  --Zooko 2002-09-22
 def init_s8():
     s8 = []
-    for cs in (
-        "ybcdrfghxjkmnpqeotavwisz13458769", # len(s) % 8 == 0
-        "", # len(s) % 8 == 1
-        "yrxnow18", # len(s) % 8 == 2
-        "", # len(s) % 8 == 3
-        "yo", # len(s) % 8 == 4
-        "ycrgxknqoaws1486", # len(s) % 8 == 5
-        "", # len(s) % 8 == 6
-        "yxo1", # len(s) % 8 == 7
-        ):
-        add_check_array(cs, s8)
+    add_check_array(chars, s8)
+    for lenmod8 in (1, 2, 3, 4, 5, 6, 7,):
+        if NUM_QS_LEGIT[lenmod8]:
+            add_check_array(get_trailing_chars_without_lsbs(4-(NUM_QS_TO_NUM_BITS[lenmod8]%5)), s8)
+        else:
+            add_check_array('', s8)
     return tuple(s8)
 s8 = init_s8()
 
 def init_s8a():
     s8a = []
-    for cs in (
-        "ybcdrfghxjkmnpqeotavwisz13458769YBCDRFGHXJKMNPQEOTAVWISZ", # len(s) % 8 == 0
-        "", # len(s) % 8 == 1
-        "yrxnow18YRXNOW", # len(s) % 8 == 2
-        "", # len(s) % 8 == 3
-        "yoYO", # len(s) % 8 == 4
-        "ycrgxknqoaws1486YCRGXKNQOAWS", # len(s) % 8 == 5
-        "", # len(s) % 8 == 6
-        "yxo1YXO", # len(s) % 8 == 7
-        ):
-        add_check_array(cs, s8a)
+    add_check_array(add_upcase(chars), s8a)
+    for lenmod8 in (1, 2, 3, 4, 5, 6, 7,):
+        if NUM_QS_LEGIT[lenmod8]:
+            add_check_array(add_upcase(get_trailing_chars_without_lsbs(4-(NUM_QS_TO_NUM_BITS[lenmod8]%5))), s8a)
+        else:
+            add_check_array('', s8a)
     return tuple(s8a)
 s8a = init_s8a()
 
@@ -237,27 +293,17 @@ s8a = init_s8a()
 # string tells whether the final character is reasonable.
 def init_s5():
     s5 = []
-    for cs in (
-        "ybcdrfghxjkmnpqeotavwisz13458769", # lengthinbits%5 == 0
-        "yo", # lengthinbits%5 == 1
-        "yox1", # lengthinbits%5 == 2
-        "yox1rnw8", # lengthinbits%5 == 3
-        "yox1rnw8cak4gqs6", # lengthinbits%5 == 4
-        ):
-        add_check_array(cs, s5)
+    add_check_array(chars, s5)
+    for lenmod5 in (1, 2, 3, 4,):
+        add_check_array(get_trailing_chars_without_lsbs(4-lenmod5), s5)
     return tuple(s5)
 s5 = init_s5()
 
 def init_s5a():
     s5a = []
-    for cs in (
-        "ybcdrfghxjkmnpqeotavwisz13458769YBCDRFGHXJKMNPQEOTAVWISZ", # lengthinbits%5 == 0
-        "yoYO", # lengthinbits%5 == 1
-        "yox1YOX", # lengthinbits%5 == 2
-        "yox1rnw8YOXRNW", # lengthinbits%5 == 3
-        "yox1rnw8cak4gqs6YOXRNWCAKGQS", # lengthinbits%5 == 4
-        ):
-        add_check_array(cs, s5a)
+    add_check_array(add_upcase(chars), s5a)
+    for lenmod5 in (1, 2, 3, 4,):
+        add_check_array(add_upcase(get_trailing_chars_without_lsbs(4-lenmod5)), s5a)
     return tuple(s5a)
 s5a = init_s5a()
 
@@ -352,7 +398,7 @@ def a2b_l_long(cs, lengthinbits):
             num = num * 256
     octets = octets[:numoctets]
     res = string.join(map(chr, octets), '')
-    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical pyutil base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
+    assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
     return res
 
 def trimnpad(os, lengthinbits):
