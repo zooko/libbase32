@@ -5,12 +5,12 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.7 2002/05/10 22:11:25 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.8 2002/09/22 16:33:45 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
 
-base32_version=(0,9,4,)
+base32_version=(0,9,5,)
 base32_verstr=string.join(map(str, base32_version), ".")
 
 # Try importing faster compiled versions of these functions.
@@ -86,8 +86,8 @@ def b2a_l(os, lengthinbits):
     del os[numoctetsofdata:]
     # zero out any unused bits in the final octet
     if lengthinbits % 8 != 0:
-        os[-1] >>= (8-(lengthinbits % 8))
-        os[-1] <<= (8-(lengthinbits % 8))
+        os[-1] = os[-1] >> (8-(lengthinbits % 8))
+        os[-1] = os[-1] << (8-(lengthinbits % 8))
     # append zero octets for padding if needed
     numoctetsneeded = (numquintets*5+7)/8 + 1
     os.extend([0]*(numoctetsneeded-len(os)))
@@ -97,10 +97,10 @@ def b2a_l(os, lengthinbits):
     num = os[0]
     i = 0
     while len(quintets) < numquintets:
-        i += 1
+        i = i + 1
         assert len(os) > i, "len(os): %s, i: %s, len(quintets): %s, numquintets: %s, lengthinbits: %s, numoctetsofdata: %s, numoctetsneeded: %s, os: %s" % (len(os), i, len(quintets), numquintets, lengthinbits, numoctetsofdata, numoctetsneeded, os,)
-        num *= 256
-        num += os[i]
+        num = num * 256
+        num = num + os[i]
         if cutoff == 1:
             cutoff = 256
             continue
@@ -162,8 +162,8 @@ def a2b_l(cs, lengthinbits):
     del qs[numquintetsofdata:]
     # zero out any unused bits in the final quintet
     if lengthinbits % 5 != 0:
-        qs[-1] >>= (5-(lengthinbits % 5))
-        qs[-1] <<= (5-(lengthinbits % 5))
+        qs[-1] = qs[-1] >> (5-(lengthinbits % 5))
+        qs[-1] = qs[-1] << (5-(lengthinbits % 5))
     # append zero quintets for padding if needed
     numquintetsneeded = (numoctets*8+4)/5
     qs.extend([0]*(numquintetsneeded-len(qs)))
@@ -175,14 +175,14 @@ def a2b_l(cs, lengthinbits):
     i = 1
     while len(octets) < numoctets:
         while pos > 256:
-            pos /= 32
+            pos = pos / 32
             num = num + (qs[i] * pos)
-            i += 1
+            i = i + 1
         octet = num / 256
         octets.append(octet)
-        num -= (octet * 256)
-        num *= 256
-        pos *= 256
+        num = num - (octet * 256)
+        num = num * 256
+        pos = pos * 256
     assert len(octets) == numoctets, "len(octets): %s, numoctets: %s, octets: %s" % (len(octets), numoctets, octets,)
     res = string.join(map(chr, octets), '')
     assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical pyutil base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
@@ -198,6 +198,7 @@ def add_check_array(cs, sfmap):
         checka[ord(c)] = 1
     sfmap.append(tuple(checka))
 
+# XXX It would be nice if the reason that this test works was documented here in comments, and if the contents were generated algorithmically at init time instead of hardcoded here.  I just found a bug in which one of the following characters had been mistyped.  --Zooko 2002-09-22
 def init_s8():
     s8 = []
     for cs in (
@@ -206,7 +207,7 @@ def init_s8():
         "yrxnow18", # len(s) % 8 == 2
         "", # len(s) % 8 == 3
         "yo", # len(s) % 8 == 4
-        "ycrgxknqoawy1486", # len(s) % 8 == 5
+        "ycrgxknqoaws1486", # len(s) % 8 == 5
         "", # len(s) % 8 == 6
         "yxo1", # len(s) % 8 == 7
         ):
@@ -222,7 +223,7 @@ def init_s8a():
         "yrxnow18YRXNOW", # len(s) % 8 == 2
         "", # len(s) % 8 == 3
         "yoYO", # len(s) % 8 == 4
-        "ycrgxknqoawy1486YCRGXKNQOAWY", # len(s) % 8 == 5
+        "ycrgxknqoaws1486YCRGXKNQOAWS", # len(s) % 8 == 5
         "", # len(s) % 8 == 6
         "yxo1YXO", # len(s) % 8 == 7
         ):
@@ -261,10 +262,10 @@ def init_s5a():
 s5a = init_s5a()
 
 def could_be_base32_encoded(s, s8=s8, tr=string.translate, identitytranstable=identitytranstable, chars=chars):
-    return s8[len(s)%8][ord(s[-1])] and not tr(s, identitytranstable, deletions=chars)
+    return s8[len(s)%8][ord(s[-1])] and not tr(s, identitytranstable, chars)
 
 def could_be_base32_encoded_l(s, lengthinbits, s5=s5, tr=string.translate, identitytranstable=identitytranstable, chars=chars):
-    return (((lengthinbits+4)/5) == len(s)) and s5[lengthinbits%5][ord(s[-1])] and not string.translate(s, identitytranstable, deletions=chars)
+    return (((lengthinbits+4)/5) == len(s)) and s5[lengthinbits%5][ord(s[-1])] and not string.translate(s, identitytranstable, chars)
 
 # the `_long' functions are 2/3 as fast as the normal ones.  The `_long' variants are included for testing, documentation, and benchmarking purposes.
 def b2a_long(os):
@@ -282,8 +283,8 @@ def b2a_l_long(os, lengthinbits):
     # zero out any unused bits in the final octet
     assert len(os) > 0, "numoctetsofdata: %s, lengthinbits: %s, numquintets: %s" % (numoctetsofdata, lengthinbits, numquintets,)
     if lengthinbits % 8 != 0:
-        os[-1] >>= (8-(lengthinbits % 8))
-        os[-1] <<= (8-(lengthinbits % 8))
+        os[-1] = os[-1] >> (8-(lengthinbits % 8))
+        os[-1] = os[-1] << (8-(lengthinbits % 8))
     # append zero octets for padding if needed
     numoctetsneeded = (numquintets*5+7)/8+4 # append 4 extra zero octets so that I can read in 40 -bit (5-octet) chunks
     os.extend([0]*(numoctetsneeded-len(os)))
@@ -295,14 +296,14 @@ def b2a_l_long(os, lengthinbits):
         # take the next 5 octets and turn them into 8 quintets
         num = 0L # i am a LONG!  hear me roar
         for j in range(5):
-            num *= 256
-            num += os[i]
-            i += 1
+            num = num *256
+            num = num + os[i]
+            i = i + 1
         for j in range(8):
             quintet = num / CUTOFF
             quintets.append(quintet)
-            num -= (quintet * CUTOFF)
-            num *= 32
+            num = num - (quintet * CUTOFF)
+            num = num * 32
     quintets = quintets[:numquintets]
     res = string.translate(string.join(map(chr, quintets), ''), v2ctranstable)
     assert could_be_base32_encoded_l(res, lengthinbits), "lengthinbits: %s, res: %s, origos: %s" % (lengthinbits, res, `origos`)
@@ -328,8 +329,8 @@ def a2b_l_long(cs, lengthinbits):
     del qs[numquintetsofdata:]
     # zero out any unused bits in the final quintet
     if lengthinbits % 5 != 0:
-        qs[-1] >>= (5-(lengthinbits % 5))
-        qs[-1] <<= (5-(lengthinbits % 5))
+        qs[-1] = qs[-1] >> (5-(lengthinbits % 5))
+        qs[-1] = qs[-1] << (5-(lengthinbits % 5))
     # append zero quintets for padding if needed
     numquintetsneeded = (numoctets*8+4)/5+7 # append 7 extra zero quintets so that I can read in 40 -bit (8-quintet) chunks
     qs.extend([0]*(numquintetsneeded-len(qs)))
@@ -341,14 +342,14 @@ def a2b_l_long(cs, lengthinbits):
         # take the next 8 quintets and turn them into 5 octets
         num = 0L # i am a LONG!  hear me roar
         for j in range(8):
-            num *= 32
-            num += qs[i]
-            i += 1
+            num = num * 32
+            num = num + qs[i]
+            i = i + 1
         for j in range(5):
             octet = num / CUTOFF
             octets.append(octet)
-            num -= (octet * CUTOFF)
-            num *= 256
+            num = num - (octet * CUTOFF)
+            num = num * 256
     octets = octets[:numoctets]
     res = string.join(map(chr, octets), '')
     assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical pyutil base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
@@ -367,8 +368,8 @@ def trimnpad(os, lengthinbits):
         del os[numos:]
         # zero out any unused bits in the final octet
         if mod8 != 0:
-            os[-1] >>= (8-(lengthinbits%8))
-            os[-1] <<= (8-(lengthinbits%8))
+            os[-1] = os[-1] >> (8-(lengthinbits%8))
+            os[-1] = os[-1] << (8-(lengthinbits%8))
     else:
         # append zero octets for padding
         os.extend([0]*(numos-len(os)))
@@ -444,7 +445,7 @@ def test_odd_sizes_violates_preconditions():
         bs2l = a2b_l_long(as, lib)
         assert len(bs2l) == (lib+7)/8 # the size of the result must be just right
         assert bs2 == bs2l
-        assert _help_test_trimnpad(bs, lib) == bs2, "trimnpad(%s, %s): %s, bs2: %s" % (`bs`, lib, `_help_test_trimnpad(bs, lib)`, `bs2`,)
+        assert trimnpad(bs, lib) == bs2, "trimnpad(%s, %s): %s, bs2: %s" % (`bs`, lib, `trimnpad(bs, lib)`, `bs2`,)
 
 def test_odd_sizes():
     for j in range(2**6):
@@ -453,8 +454,8 @@ def test_odd_sizes():
         # zero-out unused least-sig bits
         if lib%8:
             b=ord(bs[-1])
-            b >>= 8 - (lib%8)
-            b <<= 8 - (lib%8)
+            b = b >> (8 - (lib%8))
+            b = b << (8 - (lib%8))
             bs = bs[:-1] + chr(b)
         as = b2a_l(bs, lib)
         assert len(as) == (lib+4)/5 # the size of the base-32 encoding must be just right
@@ -466,22 +467,24 @@ def test_odd_sizes():
         bs2l = a2b_l_long(as, lib)
         assert len(bs2l) == (lib+7)/8 # the size of the result must be just right
         assert bs2 == bs2l
-        assert _help_test_trimnpad(bs, lib) == bs2, "trimnpad(%s, %s): %s, bs2: %s" % (`bs`, lib, `_help_test_trimnpad(bs, lib)`, `bs2`,)
+        assert trimnpad(bs, lib) == bs2, "trimnpad(%s, %s): %s, bs2: %s" % (`bs`, lib, `trimnpad(bs, lib)`, `bs2`,)
 
 def test_could_be():
     # base-32 encoded strings could be
-    for j in range(2**6):
-        assert could_be_base32_encoded(b2a(_help_test_rands(random.randrange(1, 2**7))))
+    for j in range(2**9):
+        rands = _help_test_rands(random.randrange(1, 2**7))
+        randsenc = b2a(rands)
+        assert could_be_base32_encoded(randsenc), "rands: %s, randsenc: %s, a2b(randsenc): %s" % (`rands`, `randsenc`, `a2b(randsenc)`,)
 
     # base-32 encoded strings with unusual bit lengths could be, too
-    for j in range(2**6):
-        bitl = random.randrange(1, 2**5)
+    for j in range(2**9):
+        bitl = random.randrange(1, 2**7)
         bs = _help_test_rands((bitl+7)/8)
         # zero-out unused least-sig bits
         if bitl%8:
             b=ord(bs[-1])
-            b >>= 8 - (bitl%8)
-            b <<= 8 - (bitl%8)
+            b = b >> (8 - (bitl%8))
+            b = b << (8 - (bitl%8))
             bs = bs[:-1] + chr(b)
         assert could_be_base32_encoded_l(b2a_l(bs, bitl), bitl)
 
