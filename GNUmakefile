@@ -2,7 +2,7 @@ NAME=base32
 
 INCDIRS=-I../libzutil -I../libzstr
 LIBDIRS=-L../libzutil -L../libzstr
-LIBS=-lzutil -lzstr -lm
+LIBS=-lzstr -lzutil -lm
 
 LIBPREFIX=lib
 LIBSUFFIX=.a
@@ -37,8 +37,8 @@ $(LIB): $(OBJS)
 	$(AR) -r $@ $+
 	$(RANLIB) $@
 
-$(TEST): $(LIB) $(TESTOBJS)
-	$(CC) $(LDFLAGS) $+ -o $@
+$(TEST): $(TESTOBJS) $(LIB)
+	$(CC) $+ -o $@ $(LDFLAGS)
 
 
 clean:
