@@ -1,0 +1,4 @@
+To build this you will need libzstr [1], a C library for safe, efficient,
+8-bit clean strings.
+
+ 1 - http://sourceforge.net/projects/libzstr
