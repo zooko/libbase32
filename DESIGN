@@ -13,9 +13,10 @@ that encoding.  This document describes why we made that choice.
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9 of this document.  The latest version should always be visible at:
+This is version 0.9 of this document.  The latest version should always be 
+available at:
 
-http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD&content-type=text/vnd.viewcvs-markup
+http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
 
 RATIONALE
 
