@@ -13,21 +13,21 @@ that encoding.  This document describes why we made that choice.
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9.2 of this document.  The latest version should always be 
+This is version 0.9.3 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
 
 RATIONALE
 
-Basically, the rationale for base-32 encoding in [1] is as written therein: "The 
-Base 32 encoding is designed to represent arbitrary sequences of octets in a 
-form that needs to be case insensitive but need not be humanly readable.".
+The rationale for base-32 encoding in [1] is as written therein: "The Base 32 
+encoding is designed to represent arbitrary sequences of octets in a form that 
+needs to be case insensitive but need not be humanly readable.".
 
 The rationale for libbase32 is different -- it is to represent arbitrary 
 sequences of octets in a form that is as convenient as possible for human users 
 to manipulate.  In particular, libbase32 was created in order to serve the Mnet 
-project [3], where 40-octet cryptographic values are encoded into URIs for 
+project [3], where 30-octet cryptographic values are encoded into URIs for 
 humans to manipulate.  Anticipated uses of these URIs include cut-and-paste, 
 text editing (e.g. in HTML files), manual transcription via a keyboard, manual 
 transcription via pen-and-paper, vocal transcription over phone or radio, etc.
@@ -54,9 +54,9 @@ alphanumeric characters, and the ability to omit a few of the most troublesome
 alphanumeric characters.
 
 In particular, we realized that it would probably be faster and more comfortable 
-to vocally transcribe a base-32 encoded 40-octet string (64 characters, case- 
+to vocally transcribe a base-32 encoded 30-octet string (48 characters, case- 
 insensitive, no non-alphanumeric characters) than a base-64 encoded one 
-(54 characters, case-sensitive, plus two non-alphanumeric characters).
+(40 characters, case-sensitive, plus two non-alphanumeric characters).
 
 Alphabet
 
@@ -64,9 +64,9 @@ There are 26 alphabet characters and 10 digits, for a total of 36 characters
 available.  We need only 32 characters for our base-32 alphabet, so we can 
 choose four characters to exclude.  This is where we part company with 
 traditional base-32 encodings.  For example [1] eliminates `0', `1', `8', and 
-`9'.  This choice eliminates two characters that are unambiguous (`8' and `9') 
-while retaining others that are potentially confusing.  Others have suggested 
-eliminating `0', `1', `O', and `L', which is likewise suboptimal.
+`9'.  This choice eliminates two characters that are relatively unambiguous 
+(`8' and `9') while retaining others that are potentially confusing.  Others 
+have suggested eliminating `0', `1', `O', and `L', which is likewise suboptimal.
 
 Our choice of confusing characters to eliminate is: `0', `l', `v', and `2'.  Our 
 reasoning is that `0' is potentially mistaken for `o', that `l' is potentially 
@@ -74,7 +74,7 @@ mistaken for `1' or `i', that `v' is potentially mistaken for `u' or `r'
 (especially in handwriting) and that `2' is potentially mistaken for `z' 
 (especially in handwriting).
 
-Note that we choose to focus on typed and written transcription instead of 
+Note that we choose to focus on typed and written transcription more than on 
 vocal, since humans already have a well-established system of disambiguating 
 spoken alphanumerics, such as the United States military's "Alpha Bravo Charlie 
 Delta" and telephone operators' "Is that 'd' as in 'dog'?".
@@ -86,7 +86,16 @@ final position of the encoded strings, assuming an even distribution of binary
 inputs.  (This is true whether the lengths of your inputs are evenly distributed 
 over all integer numbers of bits *or* evenly distributed over all integer 
 numbers of octets.)  Here is a table showing which length-in-bits (modulo 5) 
-results in which possible trailing characters in our encoding:
+results in which possible trailing characters in the 
+"abcdefghijklmnopqrstuvwxyz234567" encoding:
+
+ 1:  aq
+ 2:  aqiy
+ 3:  aqiyemu4
+ 4:  aqiyemu4cgkosw26
+ 0:  abcdefghijklmnopqrstuvwxyz234567
+
+Here is the same table for our alphabet:
 
  1:  yo
  2:  yoea
@@ -94,11 +103,10 @@ results in which possible trailing characters in our encoding:
  4:  yoearcwhngkq1s46
  0:  ybndrfg8ejkmcpqxot1uwisza345h769 (the whole alphabet)
 
-As you see, we have permuted the table to make the more commonly occuring 
-characters also be those that are hopefully easier to read, write, speak, and 
-remember.
+We have permuted the alphabet to make the more commonly occuring characters also 
+be those that we think are easier to read, write, speak, and remember.
 
-Sub-Octet Data
+Length Encoding and Sub-Octet Data
 
 Suppose you have 10 bits of data to transmit, and the recipient (the decoder) is 
 expecting 10 bits of data.  All previous base-32 encoding schemes assume that 
@@ -123,11 +131,63 @@ the potential confusion.
 
 Padding
 
-Honestly, I don't understand why all the base-32 and base-64 encodings require 
-trailing padding.  Maybe I'm missing something, and when I publish this document 
-people will point it out, and then I'll hastily erase this paragraph.
+Traditionally base-32 encodings have specified trailing padding to round out the 
+number of characters to an even multiple of 8.  This is apparently intended as 
+an error detection code, but we do not consider the error detection capabilities 
+of this code to be worth the increased length of the encoded strings, so we do 
+not do this.
+
+A NOTE ON COMPATIBILITY
+
+If your application could possibly interoperate with another application, then 
+you should consider the risk of precluding such interoperation by encoding 
+semantically identical objects into syntactically different representations.  
+For example, many current systems include the SHA-1 hash of the contents of a 
+file, and this hash value can be represented for user or programmatic sharing in 
+base-32 encoded form [5, 6, 7, 8].  These four systems all use traditional 
+base-32 encoding as described in [1].  If your system will expose the SHA-1 hash 
+of the contents of a file, then you should consider the benefits of having such 
+hash values be exchangeable with those systems by using the same encoding 
+including base, alphabet, permutation of alphabet, length-encoding, padding, 
+treatment of illegal characters and line-breaks.
+
+If, however, the semantic meaning of the objects that you are exposing is not 
+something that can be used by another system, due to semantic differences, then 
+you gain nothing with regard to interoperation by using the same ASCII encoding, 
+and in fact by doing so you may incur *worse* interoperation problems by making 
+it impossible for the applications to use syntactic features (namely, by 
+recognizing the encoding scheme) to disambiguate between semantic features.  
+
+Lucas Gonze has suggested [9] that different schemes could in fact 
+*deliberately* add characters which would be illegal in another scheme in order 
+to enable syntactic differentiation.  (This would be morally similar to the 
+"check digit" included in most credit card numbers.)
+
+The author has also suggested [10] encoding schematic compatibility in the 
+lengths.  For example, mnetIds will probably be 48 characters in base-32 encoded 
+form (encoding 30 octets of data).  If it turns out that other strings of that 
+length and form occur in the wild, then the mnetIds could be redefined to be 47 
+or 49 characters in order to make them recognizable.
+
+Clearly the best semantic differentiation is an unambiguous one that is 
+transmitted out-of-band (outside of the ASCII encoding, that is), such as URI 
+scheme names (e.g.: SHA1:blahblahblah or mnet://blahblahblah).  However, users 
+might not always preserve those.
+
+REFERENCES
 
 [1] http://www.ietf.org/internet-drafts/draft-josefsson-base-encoding-04.txt
 [2] http://sf.net/projects/libbase32
 [3] http://mnet.sf.net/
 [4] http://zgp.org/pipermail/p2p-hackers/2001-October/
+[5] Gnutella [need URL for SHA1 and base-32 encoding stuff]
+[6] Bitzi [need URL for specification stuff]
+[7] CAW [need URL]
+[8] THEX [need URL]
+[9] http://zgp.org/pipermail/p2p-hackers/2002-November/000924.html
+[10] http://zgp.org/pipermail/p2p-hackers/2002-November/000927.html
+
+NEEDED TO ADD
+
+Full spec, including the issues raised by draft-josefsson-base-encoding-04.txt 
+such as treatment of illegal chars, etc.

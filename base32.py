@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.12 2002/11/01 18:58:24 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.13 2002/11/01 22:55:05 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
@@ -30,7 +30,9 @@ except:
 
 # Now at the end of this file, we'll override the Python functions with the compiled functions if they are not `None'.
 
-chars = "ybndrfg8ejkmcpqxot1uwisza345h769"
+chars = "ybndrfg8ejkmcpqxot1uwisza345h769" # Zooko's choice, rationale in "DESIGN" doc
+# chars = "abcdefghijkmnopqrstuwxyz13456789" # same, unpermuted
+# chars = "abcdefghijklmnopqrstuvwxyz234567" # standard used by Gnutella, Content-Addressable Web, THEX, Bitzi...
 
 vals = string.join(map(chr, range(32)), '')
 c2vtranstable = string.maketrans(chars, vals)
