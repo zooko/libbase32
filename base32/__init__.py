@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.8 2002/09/22 16:33:45 zooko Exp $'
+__cvsid = '$Id: __init__.py,v 1.1 2002/10/27 21:26:29 myers_carpenter Exp $'
 
 # Python standard library modules
 import string, types, operator
