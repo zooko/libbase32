@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: base32id.py,v 1.1 2003/02/04 03:56:15 zooko Exp $"
+__revision__ = "$Id: base32id.py,v 1.2 2003/04/03 00:52:52 myers_carpenter Exp $"
 
 # Python Standard Library modules
 import string
@@ -42,8 +42,8 @@ class AbbrevRepr(BetterRepr):
                 if self.maxourstring >= 22:
                     return `obj`
 
-                # inlining `repr.repr_string()' (with maxourstring) here... and with enable_unescaped_strings
-                if self.enable_unescaped_strings:
+                # inlining `repr.repr_string()' (with maxourstring) here... and with unescaped_strings
+                if self.unescaped_strings:
                     s = str(obj[:self.maxourstring])
                     if len(s) > self.maxourstring:
                         i = max(0, (self.maxourstring-3)/2)
@@ -67,8 +67,8 @@ class AbbrevRepr(BetterRepr):
             # new "libbase32" base-32 encoding
             return '<' + obj[:5] + '>'
         else:
-            # inlining `repr.repr_string()' (with maxourstring) here... and with enable_unescaped_strings
-            if self.enable_unescaped_strings:
+            # inlining `repr.repr_string()' (with maxourstring) here... and with unescaped_strings
+            if self.unescaped_strings:
                 s = str(obj[:self.maxourstring])
                 if len(s) > self.maxourstring:
                     i = max(0, (self.maxourstring-3)/2)
