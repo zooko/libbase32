@@ -4,7 +4,7 @@
 #    GNU Lesser General Public License v2.1.
 #    See the file COPYING or visit http://www.gnu.org/ for details.
 
-__revision__ = "$Id: base32id.py,v 1.2 2003/04/03 00:52:52 myers_carpenter Exp $"
+__revision__ = "$Id: base32id.py,v 1.3 2003/04/03 22:30:35 zooko Exp $"
 
 # Python Standard Library modules
 import string
@@ -33,57 +33,35 @@ def could_be_abbrev(id, could_be_base32_encoded_l=base32.could_be_base32_encoded
 class AbbrevRepr(BetterRepr):
     def __init__(self):
         BetterRepr.__init__(self)
-        self.repr_string = self.repr_str
 
     def repr_str(self, obj, level, could_be_base32_encoded_l=base32.could_be_base32_encoded_l, translate=string.translate, nulltrans=nulltrans, printableascii=printableascii, abbrev=abbrev):
         if len(obj) == 20:
             # But maybe it was just a 20-character human-readable string, like "credit limit reached", so this is an attempt to detect that case.
             if len(translate(obj, nulltrans, printableascii)) == 0:
-                if self.maxourstring >= 22:
+                if self.maxstring >= 22:
                     return `obj`
 
-                # inlining `repr.repr_string()' (with maxourstring) here... and with unescaped_strings
-                if self.unescaped_strings:
-                    s = str(obj[:self.maxourstring])
-                    if len(s) > self.maxourstring:
-                        i = max(0, (self.maxourstring-3)/2)
-                        j = max(0, self.maxourstring-3-i)
-                        s = str(obj[:i] + obj[len(obj)-j:])
-                        s = s[:i] + '...' + s[len(s)-j:]
-                        # ... done inlining `repr.repr_string()'
-                    return s
-                else:
-                    s = `obj[:self.maxourstring]`
-                    if len(s) > self.maxourstring:
-                        i = max(0, (self.maxourstring-3)/2)
-                        j = max(0, self.maxourstring-3-i)
-                        s = `obj[:i] + obj[len(obj)-j:]`
-                        s = s[:i] + '...' + s[len(s)-j:]
-                        # ... done inlining `repr.repr_string()'
-                    return s
+                # inlining repr.repr_string() here...
+                s = `obj[:self.maxstring]`
+                if len(s) > self.maxstring:
+                    i = max(0, (self.maxstring-3)/2)
+                    j = max(0, self.maxstring-3-i)
+                    s = `obj[:i] + obj[len(obj)-j:]`
+                    s = s[:i] + '...' + s[len(s)-j:]
+                    # ... done inlining `repr.repr_string()'
+                return s
 
             return abbrev(obj)
         elif could_be_base32_encoded_l(obj, 160):
             # new "libbase32" base-32 encoding
             return '<' + obj[:5] + '>'
         else:
-            # inlining `repr.repr_string()' (with maxourstring) here... and with unescaped_strings
-            if self.unescaped_strings:
-                s = str(obj[:self.maxourstring])
-                if len(s) > self.maxourstring:
-                    i = max(0, (self.maxourstring-3)/2)
-                    j = max(0, self.maxourstring-3-i)
-                    s = str(obj[:i] + obj[len(obj)-j:])
-                    s = s[:i] + '...' + s[len(s)-j:]
-                # ... done inlining `repr.repr_string()'
-                return s
-            else:
-                s = `obj[:self.maxourstring]`
-                if len(s) > self.maxourstring:
-                    i = max(0, (self.maxourstring-3)/2)
-                    j = max(0, self.maxourstring-3-i)
-                    s = `obj[:i] + obj[len(obj)-j:]`
-                    s = s[:i] + '...' + s[len(s)-j:]
-                # ... done inlining `repr.repr_string()'
-                return s
-
+            # inlining repr.repr_string() here...
+            s = `obj[:self.maxstring]`
+            if len(s) > self.maxstring:
+                i = max(0, (self.maxstring-3)/2)
+                j = max(0, self.maxstring-3-i)
+                s = `obj[:i] + obj[len(obj)-j:]`
+                s = s[:i] + '...' + s[len(s)-j:]
+            # ... done inlining `repr.repr_string()'
+            return s
