@@ -5,12 +5,12 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.5 2002/05/03 12:43:35 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.6 2002/05/10 01:43:44 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
 
-base32_version=(0,9,2,)
+base32_version=(0,9,3,)
 base32_verstr=string.join(map(str, base32_version), ".")
 
 # Try importing faster compiled versions of these functions.
