@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.1 2002/02/10 22:11:14 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.2 2002/02/11 14:52:56 zooko Exp $'
 
 ### standard modules
 import string, types, operator
@@ -18,11 +18,13 @@ c_b2a = None
 c_a2b = None
 c_could_be_base32_encoded_octets = None
 c_could_be_base32_encoded = None
+c_trimnpad = None
 try:
     from c_base32 import c_b2a
     from c_base32 import c_a2b
     from c_base32 import c_could_be_base32_encoded_octets
     from c_base32 import c_could_be_base32_encoded
+    from c_base32 import c_trimnpad
 except:
     pass
 
@@ -262,7 +264,7 @@ def could_be_base32_encoded(s, s8=s8, tr=string.translate, identitytranstable=id
     return s8[len(s)%8][ord(s[-1])] and not tr(s, identitytranstable, deletions=chars)
 
 def could_be_base32_encoded_l(s, lengthinbits, s5=s5, tr=string.translate, identitytranstable=identitytranstable, chars=chars):
-    return s5[lengthinbits%5][ord(s[-1])] and not string.translate(s, identitytranstable, deletions=chars)
+    return (((lengthinbits+4)/5) == len(s)) and s5[lengthinbits%5][ord(s[-1])] and not string.translate(s, identitytranstable, deletions=chars)
 
 # the `_long' functions are 2/3 as fast as the normal ones.  The `_long' variants are included for testing, documentation, and benchmarking purposes.
 def b2a_long(os):
@@ -352,6 +354,22 @@ def a2b_l_long(cs, lengthinbits):
     assert b2a_l(res, lengthinbits) == cs, "precondition: `cs' must be the canonical pyutil base-32 encoding of some data.  res: %s, cs: %s, b2a(res): %s" % (`res`, `cs`, `b2a(res)`,)
     return res
 
+def trimnpad(os, lengthinbits):
+    """
+    @return a string derived from `os' but containing exactly `lengthinbits' data bits -- if lengthinbits is less than the number of bits contained in `os' then the trailing unused bits will be zeroed out, and if `lengthinbits' is greater than the number of bits contained in `os' then extra zero bytes will be appended
+    """
+    os = map(ord, os)
+    numos = (lengthinbits+7)/8
+    # strip trailing octets that won't be used
+    del os[numos:]
+    # zero out any unused bits in the final octet
+    if lengthinbits % 8 != 0:
+        os[-1] >>= (8-(lengthinbits%8))
+        os[-1] <<= (8-(lengthinbits%8))
+    # append zero octets for padding if needed
+    os.extend([0]*(numos-len(os)))
+    return string.join(map(chr, os), '')
+
 
 # Now we'll override the Python functions with the compiled functions if they are not `None'.
 if c_b2a is not None:
@@ -362,6 +380,8 @@ if c_could_be_base32_encoded_octets is not None:
     could_be_base32_encoded_octets = c_could_be_base32_encoded_octets
 if c_could_be_base32_encoded is not None:
     could_be_base32_encoded = c_could_be_base32_encoded
+if c_trimnpad is not None:
+    trimnpad = c_trimnpad
 
 
 # UNIT TESTS:
@@ -402,19 +422,6 @@ def test_big():
     bs2l=a2b_long(as)
     assert bs2 == bs2l
     assert bs2 == bs
-
-def _help_test_trimnpad(os, lib):
-    os = map(ord, os)
-    numos = (lib+7)/8
-    # strip trailing octets that won't be used
-    del os[numos:]
-    # zero out any unused bits in the final octet
-    if lib % 8 != 0:
-        os[-1] >>= (8-(lib%8))
-        os[-1] <<= (8-(lib%8))
-    # append zero octets for padding if needed
-    os.extend([0]*(numos-len(os)))
-    return string.join(map(chr, os), '')
 
 def test_odd_sizes_violates_preconditions():
     """
