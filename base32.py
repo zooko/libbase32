@@ -5,10 +5,13 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.16 2003/02/05 04:41:03 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.17 2003/02/06 20:23:11 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
+
+# pyutil modules
+from pyutil import strutil
 
 base32_version=(0,9,9,)
 base32_verstr=string.join(map(str, base32_version), ".")
@@ -74,8 +77,8 @@ def print_trailing_chars():
         print_trailing_chars_without_lsbs(N)
         N = N - 1
 
-upcasetranstable = string.maketrans(string.ascii_lowercase, string.ascii_uppercase)
-digitchars = string.translate(chars, identitytranstable, string.ascii_lowercase)
+upcasetranstable = string.maketrans(strutil.ascii_lowercase, strutil.ascii_uppercase)
+digitchars = string.translate(chars, identitytranstable, strutil.ascii_lowercase)
 def add_upcase(s, upcasetranstable=upcasetranstable, digitchars=digitchars):
     return s + string.translate(s, upcasetranstable, digitchars)
 
