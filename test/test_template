@@ -6,7 +6,7 @@ A sample unit test file.
 """
 
 __author__   = 'John Shamo'
-__revision__ = "$Id: test_template,v 1.1 2003/02/06 17:54:00 myers_carpenter Exp $"
+__revision__ = "$Id: test_template,v 1.1 2003/02/22 16:30:11 myers_carpenter Exp $"
 
 import unittest
 
@@ -15,10 +15,15 @@ class SampleTestCase(unittest.TestCase):
         pass
 
     def tearDown(self):
-		pass
+        pass
 
     def testSample1(self):
-		pass 
+        pass 
+
+    def testResize(self):
+        pass
+
+
 
 def suite():
     suite = unittest.makeSuite(SampleTestCase, 'test')
