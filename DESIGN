@@ -79,6 +79,25 @@ vocal, since humans already have a well-established system of disambiguating
 spoken alphanumerics, such as the United States military's "Alpha Bravo Charlie 
 Delta" and telephone operators' "Is that 'd' as in 'dog'?".
 
+Order of Alphabet
+
+Some of the alphabet characters will appear more frequently than others in the 
+final position of the encoded strings, assuming an even distribution of binary 
+inputs.  (This is true whether the lengths of your inputs are evenly distributed 
+over all integer numbers of bits *or* evenly distributed over all integer 
+numbers of octets.)  Here is a table showing which length-in-bits (modulo 5) 
+results in which possible trailing characters in our encoding:
+
+ 1:  yo
+ 2:  yoea
+ 3:  yoearcwh
+ 4:  yoearcwhngkq1s46
+ 0:  ybndrfg8ejkmcpqxot1uwisza345h769 (the whole alphabet)
+
+As you see, we have permuted the table to make the more commonly occuring 
+characters also be those that are hopefully easier to read, write, speak, and 
+remember.
+
 Sub-Octet Data
 
 Suppose you have 10 bits of data to transmit, and the recipient (the decoder) is 
