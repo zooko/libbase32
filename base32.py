@@ -5,9 +5,9 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.2 2002/02/11 14:52:56 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.3 2002/03/16 13:05:29 zooko Exp $'
 
-### standard modules
+# standard Python modules
 import string, types, operator
 
 base32_version=(0,9,2,)
