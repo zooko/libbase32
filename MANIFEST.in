@@ -5,4 +5,5 @@ include base32.c
 include base32.h
 include test.c
 include test/test_template
+include test/__init__.py
 include MANIFEST.in
