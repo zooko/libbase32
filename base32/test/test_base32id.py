@@ -4,28 +4,22 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__author__ = 'Zooko'
-__revision__ = '$Id: test_base32id.py,v 1.1 2003/04/03 22:30:38 zooko Exp $'
+__version__ = "$Revision: 1.2 $"
+# $Source: /home/zooko/playground/libbase32/rescue-party/gw/../libbase32/libbase32/base32/test/Attic/test_base32id.py,v $
 
-# Python Standard Library modules
-import random, string, unittest
+True = 1 == 1
+False = not True
 
-# libbase32 modules
+import unittest
+
 from libbase32.base32id import *
 
 class base32idTestCase(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_veqfp_is_an_encoding(self):
-        self.failUnless(could_be_abbrev('veqfp'))
+    def test_veqfp_is_not_an_encoding(self):
+        self.failIf(could_be_abbrev('veqfp')) # The "Zooko's choice" alphabet doesn't contain the character 'v'.
 
 def suite():
-    suite = unittest.makeSuite(base32idTestCase, 'test')
-    return suite
+    return unittest.makeSuite(base32idTestCase, 'test')
 
 if __name__ == "__main__":
     unittest.main()
