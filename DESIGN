@@ -13,7 +13,7 @@ that encoding.  This document describes why we made that choice.
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9.1 of this document.  The latest version should always be 
+This is version 0.9.2 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
