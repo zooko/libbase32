@@ -14,7 +14,7 @@ end on "COMPATIBILITY AND INTEROPERATION".
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9.4.3 of this document.  The latest version should always be 
+This is version 0.9.4.4 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
@@ -184,7 +184,7 @@ REFERENCES
 [5] Gnutella [need URL for SHA1 and base-32 encoding stuff]
 [6] Bitzi [need URL for specification stuff]
 [7] CAW [need URL]
-[8] THEX [need URL]
+[8] http://open-content.net/specs/draft-jchapweske-thex-01.html
 [9] http://zgp.org/pipermail/p2p-hackers/2002-November/000924.html
 [10] http://zgp.org/pipermail/p2p-hackers/2002-November/000927.html
 
