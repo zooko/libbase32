@@ -7,12 +7,12 @@
 #ifndef __INCL_base32_h
 #define __INCL_base32_h
 
-static char const* const base32_h_cvsid = "$Id: base32.h,v 1.3 2002/09/22 16:33:45 zooko Exp $";
+static char const* const base32_h_cvsid = "$Id: base32.h,v 1.4 2002/10/27 20:25:39 zooko Exp $";
 
 static int const base32_vermaj = 0;
 static int const base32_vermin = 9;
-static int const base32_vermicro = 5;
-static char const* const base32_vernum = "0.9.5";
+static int const base32_vermicro = 6;
+static char const* const base32_vernum = "0.9.6";
 
 #include "zstr.h" /* XXX add doc of how to get this library */
 #include "zutil.h" /* XXX add doc of how to get this library */

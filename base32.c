@@ -110,6 +110,7 @@ zstr a2b_l(const czstr cs, const size_t lengthinbits)
 
 zstr a2b_l_very_Duffy(const czstr cs, const size_t lengthinbits)
 {
+	unsigned long x=0; /* to hold up to 32 bits worth of the input */
 	zstr result = new_z(divceil(cs.len*5, 8)); /* if lengthinbits is not a multiple of 5 then this is allocating space for 0 or 1 extra octets that will be truncated at the end of this function if they are not needed */
 #ifndef Z_EXHAUST_EXIT
 	if (result.buf == NULL)
@@ -122,7 +123,6 @@ zstr a2b_l_very_Duffy(const czstr cs, const size_t lengthinbits)
 	fflush(stdout);
 
 	/* Now this is a real live Duff's device.  You gotta love it. */
-	unsigned long x=0; /* to hold up to 32 bits worth of the input */
 	switch ((csp - cs.buf) % 8) {
 	case 0:
 		fflush(stdout);
