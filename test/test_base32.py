@@ -5,13 +5,13 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 __author__ = 'Zooko'
-__revision__ = '$Id: test_base32.py,v 1.1 2003/02/05 04:41:03 zooko Exp $'
+__revision__ = '$Id: test_base32.py,v 1.2 2003/02/23 16:21:32 myers_carpenter Exp $'
 
 # Python Standard Library modules
 import random, string, unittest
 
-# libbase32 modules
-from libbase32.base32 import *
+# base32 modules
+from base32.base32 import *
 
 def _help_test_rands(n):
     return string.join(map(chr, map(random.randrange, [0]*n, [256]*n)), '')
