@@ -1,5 +1,5 @@
 /**
- * copyright 2002 Bryce "Zooko" Wilcox-O'Hearn
+ * copyright 2002, 2003 Bryce "Zooko" Wilcox-O'Hearn
  * mailto:zooko@zooko.com
  *
  * See the end of this file for the free software, open source license (BSD-style).
@@ -7,12 +7,12 @@
 #ifndef __INCL_base32_h
 #define __INCL_base32_h
 
-static char const* const base32_h_cvsid = "$Id: base32.h,v 1.10 2003/12/14 18:45:15 zooko Exp $";
+static char const* const base32_h_cvsid = "$Id: base32.h,v 1.11 2003/12/15 01:16:19 zooko Exp $";
 
 static int const base32_vermaj = 0;
 static int const base32_vermin = 9;
-static int const base32_vermicro = 11;
-static char const* const base32_vernum = "0.9.11";
+static int const base32_vermicro = 12;
+static char const* const base32_vernum = "0.9.12";
 
 #include "zstr.h" /* http://sf.net/projects/libzstr */
 #include "zutil.h" /* http://sf.net/projects/libzutil */
