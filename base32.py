@@ -4,14 +4,14 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__version__ = "$Revision: 1.19 $"
+__version__ = "$Revision: 1.20 $"
 # $Source: /home/zooko/playground/libbase32/rescue-party/gw/../libbase32/libbase32/base32.py,v $
 
 import string
 
 from pyutil.assertutil import _assert, precondition, postcondition
 
-base32_version=(0,9,10,)
+base32_version=(0,9,11,)
 base32_verstr='.'.join(map(str, base32_version))
 
 # Try importing faster compiled versions of these functions.

@@ -30,10 +30,10 @@ int test_rands()
 	for (i=0; i<32768; i++) {
 		a = cz(b2a(z));
 		/* printf("a.len: %d, buf: %s\n", a.len, a.buf);*/
-		assert (strlen(a.buf) == divceil(z.len*8, 5));
+		assert (strlen(cz_as_cs(a)) == divceil(z.len*8, 5));
 		assert (isgraph(a.buf[0]));
 		zrecovered = cz(a2b(a));
-		if (!z_eq(z, zrecovered)) {
+		if (!zeq(z, zrecovered)) {
 			printf("failed basic recovery test. z: %s, a: %s, zr: %s\n", repr(z).buf, a.buf, repr(zrecovered).buf);
 			return -1;
 		}

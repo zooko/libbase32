@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: GNUmakefile,v 1.5 2003/12/13 18:04:08 zooko Exp $'
+__cvsid = '$Id: GNUmakefile,v 1.6 2003/12/14 18:45:15 zooko Exp $'
 
 NAME=base32
 
@@ -19,7 +19,7 @@ LIBSUFFIX=.a
 RANLIB=ranlib
 AR=ar
 
-CC=gcc
+# CC=gcc
 
 CFLAGS=-DNDEBUG -Wall -O0 $(INCDIRS)
 LDFLAGS=$(LIBDIRS) $(LIBS)
