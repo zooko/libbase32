@@ -5,9 +5,9 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.4 2002/03/16 13:17:57 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.5 2002/05/03 12:43:35 zooko Exp $'
 
-# standard Python modules
+# Python standard library modules
 import string, types, operator
 
 base32_version=(0,9,2,)
@@ -150,9 +150,9 @@ def a2b_l(cs, lengthinbits):
 
     @return the data encoded in `cs'
 
-    @precondition `cs' must be possibly base32 encoded data.: could_be_base32_encoded_l(cs, lengthinbits)
+    @precondition cs must be possibly base32 encoded data.: could_be_base32_encoded_l(cs, lengthinbits): "cs: %s, lengthinbits: %s" % (cs, lengthinbits,)
     """
-    assert could_be_base32_encoded_l(cs, lengthinbits), "precondition: `cs' must be possibly base32 encoded data."
+    assert could_be_base32_encoded_l(cs, lengthinbits), "precondition: cs must be possibly base32 encoded data." + " -- " + "cs: %s, lengthinbits: %s" % (cs, lengthinbits,)
 
     qs = map(ord, string.translate(cs, c2vtranstable))
 
