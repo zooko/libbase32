@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 __author__ = 'Zooko'
-__revision__ = '$Id: test_base32id.py,v 1.2 2003/02/23 16:21:33 myers_carpenter Exp $'
+__revision__ = '$Id: test_base32id.py,v 1.3 2003/04/05 20:02:18 tschechow Exp $'
 
 # Python Standard Library modules
 import random, string, unittest
@@ -20,8 +20,8 @@ class base32idTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def test_veqfp_is_an_encoding(self):
-        self.failUnless(could_be_abbrev('veqfp'))
+    def test_n8mo4_is_an_encoding(self):
+        self.failUnless(could_be_abbrev('n8mo4'))
 
 def suite():
     suite = unittest.makeSuite(base32idTestCase, 'test')

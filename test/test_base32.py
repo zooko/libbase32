@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 __author__ = 'Zooko'
-__revision__ = '$Id: test_base32.py,v 1.2 2003/02/23 16:21:32 myers_carpenter Exp $'
+__revision__ = '$Id: test_base32.py,v 1.3 2003/04/05 20:02:18 tschechow Exp $'
 
 # Python Standard Library modules
 import random, string, unittest
@@ -98,8 +98,8 @@ class base32TestCase(unittest.TestCase):
             assert bs2 == bs2l
             assert trimnpad(bs, lib) == bs2, "trimnpad(%s, %s): %s, bs2: %s" % (`bs`, lib, `trimnpad(bs, lib)`, `bs2`,)
 
-    def test_veqfp_is_an_encoding(self):
-        self.failUnless(could_be_base32_encoded_l('veqfp', 25))
+    def test_n8mo4_is_an_encoding(self):
+        self.failUnless(could_be_base32_encoded_l('n8mo4', 25))
 
     def test_could_be(self):
         # base-32 encoded strings could be
