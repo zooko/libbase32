@@ -13,7 +13,7 @@ that encoding.  This document describes why we made that choice.
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9 of this document.  The latest version should always be 
+This is version 0.9.1 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
@@ -74,10 +74,10 @@ mistaken for `1' or `i', that `v' is potentially mistaken for `u' or `r'
 (especially in handwriting) and that `2' is potentially mistaken for `z' 
 (especially in handwriting).
 
-Note that we choose to focus on typed and written transcription errors instead 
-of vocal, since humans already have a well-established system of disambiguating 
-spoken alphanumerics (such as the United States military's "Alpha Bravo Charlie 
-Delta" and telephone operators' "Is that 'd' as in 'dog'?").
+Note that we choose to focus on typed and written transcription instead of 
+vocal, since humans already have a well-established system of disambiguating 
+spoken alphanumerics, such as the United States military's "Alpha Bravo Charlie 
+Delta" and telephone operators' "Is that 'd' as in 'dog'?".
 
 Sub-Octet Data
 
@@ -85,8 +85,9 @@ Suppose you have 10 bits of data to transmit, and the recipient (the decoder) is
 expecting 10 bits of data.  All previous base-32 encoding schemes assume that 
 the binary data to be encoded is in 8-bit octets, so you would have to pad the 
 data out to 2 octets and encode it in base-32, resulting in a string 
-4-characters long.  The decoder will decode that into 2 octets (16 bits) and 
-then ignore the least significant 6 bits.
+4-characters long.  The decoder will decode that into 2 octets (16 bits), 
+ignoring the least significant 4 bits of the encoded string, and then ignore the 
+least significant 6 bits of the decoded data.
 
 In the base-32 encoding described here, if the encoder and decoder both know the 
 exact length of the data in bits (modulo 40), then they can use this shared 
@@ -94,11 +95,12 @@ information to optimize the size of the transmitted (encoded) string.  In the
 example that you have 10 bits of data to transmit, libbase32 allows you to 
 transmit the optimal encoded string: two characters.
 
-If the length in bits is always a multiple of 8, or if both sides are not sure 
-of the length in bits modulo 40, or if this encoding is being used in a way that 
-optimizing one or two characters out of the encoded string isn't worth the 
-potential confusion, you can always use this encoding the same way you would use 
-other encodings -- with an "input is in 8-bit octets" assumption.
+You can always use this encoding the same way you would use the other 
+encodings -- with an "input is in 8-bit octets" assumption.  This would be 
+appropriate if the length in bits is always a multiple of 8, if both sides are 
+not sure of the length in bits modulo 40, or if this encoding is being used in a 
+way that optimizing one or two characters out of the encoded string isn't worth 
+the potential confusion.
 
 Padding
 
