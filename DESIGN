@@ -14,7 +14,7 @@ end on "COMPATIBILITY AND INTEROPERATION".
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9.4.1 of this document.  The latest version should always be 
+This is version 0.9.4.2 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
@@ -192,6 +192,7 @@ NEEDED TO ADD
 
  * Full spec, including the issues named by draft-josefsson-base-encoding-04.txt 
   such as treatment of illegal chars, etc.
+   + also issues of length-encoding, scheme-encoding (e.g. URIs), etc.
 
  * Explanation of why we avoid non-alphanumerics.
 
