@@ -7,7 +7,7 @@
 #ifndef __INCL_base32_h
 #define __INCL_base32_h
 
-static char const* const base32_h_cvsid = "$Id: base32.h,v 1.1 2002/02/10 22:11:14 zooko Exp $";
+static char const* const base32_h_cvsid = "$Id: base32.h,v 1.2 2002/03/16 13:17:57 zooko Exp $";
 
 static int const base32_vermaj = 0;
 static int const base32_vermin = 9;
@@ -138,11 +138,11 @@ c_could_be_base32_encoded = None*/
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of this software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * OUT OF OR IN CONNECTION WITH THIS SOFTWARE OR THE USE OR OTHER DEALINGS IN 
+ * THIS SOFTWARE.
  */
