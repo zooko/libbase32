@@ -61,9 +61,9 @@ int bench_ed()
 
 int main(int argc, char**argv)
 {
-/*	if (test_b2alen_doesnt_overflow()) {
+	if (test_b2alen_doesnt_overflow()) {
 		return -1;
-	}*/
-  /*return test_rands();*/
-		return bench_ed();
+	}
+	return test_rands();
+	/*return bench_ed();*/
 }
