@@ -5,7 +5,7 @@
 # See the end of this file for the free software, open source license (BSD-style).
 
 # CVS:
-__cvsid = '$Id: base32.py,v 1.17 2003/02/06 20:23:11 zooko Exp $'
+__cvsid = '$Id: base32.py,v 1.18 2003/09/12 19:55:54 myers_carpenter Exp $'
 
 # Python standard library modules
 import string, types, operator
@@ -33,9 +33,10 @@ except:
 
 # Now at the end of this file, we'll override the Python functions with the compiled functions if they are not `None'.
 
-chars = "ybndrfg8ejkmcpqxot1uwisza345h769" # Zooko's choice, rationale in "DESIGN" doc
-# chars = "abcdefghijkmnopqrstuwxyz13456789" # same, unpermuted
-# chars = "abcdefghijklmnopqrstuvwxyz234567" # standard used by Gnutella, Content-Addressable Web, THEX, Bitzi...
+mnet32_alphabet = "ybndrfg8ejkmcpqxot1uwisza345h769" # Zooko's choice, rationale in "DESIGN" doc
+# mnet32_alphabet = "abcdefghijkmnopqrstuwxyz13456789" # same, unpermuted
+rfc3548_alphabet = "abcdefghijklmnopqrstuvwxyz234567" # RFC3548 standard used by Gnutella, Content-Addressable Web, THEX, Bitzi...
+chars = mnet32_alphabet
 
 vals = string.join(map(chr, range(32)), '')
 c2vtranstable = string.maketrans(chars, vals)
