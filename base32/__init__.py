@@ -4,12 +4,16 @@
 # mailto:zooko@zooko.com
 # See the end of this file for the free software, open source license (BSD-style).
 
-__revision__ = '$Id: __init__.py,v 1.3 2003/02/06 17:54:00 myers_carpenter Exp $'
+# CVS:
+__cvsid = '$Id: __init__.py,v 1.4 2003/02/06 20:48:39 zooko Exp $'
 
 # Python standard library modules
 import string, types, operator
 
-base32_version=(0,9,5,)
+# pyutil modules
+from pyutil import strutil
+
+base32_version=(0,9,9,)
 base32_verstr=string.join(map(str, base32_version), ".")
 
 # Try importing faster compiled versions of these functions.
@@ -73,8 +77,8 @@ def print_trailing_chars():
         print_trailing_chars_without_lsbs(N)
         N = N - 1
 
-upcasetranstable = string.maketrans(string.ascii_lowercase, string.ascii_uppercase)
-digitchars = string.translate(chars, identitytranstable, string.ascii_lowercase)
+upcasetranstable = string.maketrans(strutil.ascii_lowercase, strutil.ascii_uppercase)
+digitchars = string.translate(chars, identitytranstable, strutil.ascii_lowercase)
 def add_upcase(s, upcasetranstable=upcasetranstable, digitchars=digitchars):
     return s + string.translate(s, upcasetranstable, digitchars)
 
@@ -433,6 +437,7 @@ if c_could_be_base32_encoded is not None:
 if c_trimnpad is not None:
     trimnpad = c_trimnpad
 
+# For unit tests, see the file `test/test_base32.py'.
 
 def _help_bench_e(N):
     return b2a(_help_test_rands(N))
