@@ -8,12 +8,13 @@
 INTRO
 
 The base-32 encoding implemented in this library differs from that described in 
-draft-josefsson-base-encoding-04.txt [1], and as a result is incompatible with 
-that encoding.  This document describes why we made that choice.
+draft-josefsson-base-encoding-04.txt [1] in several ways.  This document 
+describes why we made each different choice, and also includes a section at the 
+end on "COMPATIBILITY AND INTEROPERATION".
 
 This encoding is implemented in a project named libbase32 [2].
 
-This is version 0.9.3 of this document.  The latest version should always be 
+This is version 0.9.4 of this document.  The latest version should always be 
 available at:
 
 http://cvs.sf.net/cgi-bin/viewcvs.cgi/libbase32/libbase32/DESIGN?rev=HEAD
@@ -137,7 +138,7 @@ an error detection code, but we do not consider the error detection capabilities
 of this code to be worth the increased length of the encoded strings, so we do 
 not do this.
 
-A NOTE ON COMPATIBILITY
+A NOTE ON COMPATIBILITY AND INTEROPERATION
 
 If your application could possibly interoperate with another application, then 
 you should consider the risk of precluding such interoperation by encoding 
