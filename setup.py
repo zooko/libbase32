@@ -11,7 +11,7 @@ setup_args = {
     'description': 'libbase32 is an implementation of base32 encoding for encoding arbitrary binary data so that humans can remember, copy, e-mail and cut-n-paste it.',
     'author': 'zooko',
     'author_email': 'zooko@zooko.com',
-    'licence': 'BSD-Like',
+    'license': 'BSD-Like',
     'package_dir': {'base32': '.'},
     'packages': ['base32'],    
 }
